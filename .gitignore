@@ -1,5 +1,5 @@
 # Data folder
-\data
+*.csv
 
 # plots
 \attention_visualization
