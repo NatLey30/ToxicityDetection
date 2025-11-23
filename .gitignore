@@ -1,6 +1,13 @@
 # Data folder
 \data
 
+# plots
+\attention_visualization
+\saliency_maps
+
+# model
+\models
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[codz]

@@ -11,6 +11,7 @@ from transformers import get_linear_schedule_with_warmup
 from src.data import load_and_prepare_datasets, set_global_seed
 from src.model import build_model_and_tokenizer
 from src.train_functions import train_one_epoch, val_step, test_step
+from src.utils import save_model
 
 
 def parse_args():
@@ -141,27 +142,20 @@ def main():
         )
 
         # Track best based on F1_macro
-        # if val_metrics["f1_macro"] > best_val_f1:
-        #     best_val_f1 = val_metrics["f1_macro"]
-        #     os.makedirs(args.output_dir, exist_ok=True)
-        #     print(f"\nNew best model (F1-macro={best_val_f1:.4f}). Saving to {args.output_dir}")
-        #     model.save_pretrained(args.output_dir)
-        #     tokenizer.save_pretrained(args.output_dir)
+        if val_metrics["f1_macro"] > best_val_f1:
+            best_val_f1 = val_metrics["f1_macro"]
+            print(f"\nNew best model (F1-macro={best_val_f1:.4f}). Saving to best_model.")
+            save_model(model, tokenizer, "models/best_model")
 
-    os.makedirs(args.output_dir, exist_ok=True)
-    print(f"\nNew model. Saving to {args.output_dir}")
-    model.save_pretrained(args.output_dir)
+    print(f"\nNew model. Saving to {args.output_dir}".)
+    save_model(model, tokenizer, args.output_dir)
 
     # === Final Test Evaluation ===
     print("\n=== Evaluating test set using best saved model ===")
     model.to(device)
-    test_metrics = test_step(model, test_loader, device)
+    _, _, test_metrics = test_step(model, test_loader, device)
 
-    print(
-        f"Test loss: {test_metrics['loss']:.4f} | "
-        f"Test acc: {test_metrics['accuracy']:.4f} | "
-        f"Test F1: {test_metrics['f1']:.4f}"
-    )
+    print(test_metrics)
 
 
 if __name__ == "__main__":

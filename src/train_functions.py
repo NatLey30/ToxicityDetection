@@ -133,6 +133,7 @@ def test_step(
     """
     model.eval()
 
+    all_probs = []
     all_preds = []
     all_labels = []
 
@@ -142,16 +143,20 @@ def test_step(
         outputs = model(**batch)
         logits = outputs.logits
 
-        preds = (torch.sigmoid(logits) > 0.5).int().cpu().numpy()
+        logits_cpu = logits.detach().cpu().numpy()
+        probs = 1 / (1 + np.exp(-logits_cpu))
+        preds = (probs > 0.5).astype(int)
+
         labels = batch["labels"].detach().cpu().numpy()
 
+        all_probs.extend(list(logits_cpu))
         all_preds.extend(list(preds))
         all_labels.extend(list(labels))
 
     f1_micro = f1_score(all_labels, all_preds, average="micro")
     f1_macro = f1_score(all_labels, all_preds, average="macro")
 
-    return {
+    return all_preds, all_probs, {
         "f1_micro": f1_micro,
         "f1_macro": f1_macro,
     }
