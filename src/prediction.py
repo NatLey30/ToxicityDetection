@@ -31,11 +31,11 @@ def predict_with_scores(model, tokenizer, text: str, id2label, device, threshold
     # List of (label, probability)
     label_scores = [(label, p) for label, p in zip(id2label, probs)]
 
-    # 1️⃣ Active labels > threshold
+    # Active labels > threshold
     active = [(label, p) for label, p in label_scores if p >= threshold]
     active_sorted = sorted(active, key=lambda x: x[1], reverse=True)
 
-    # 2️⃣ Top-k regardless of threshold
+    # Top-k regardless of threshold
     top_k_sorted = sorted(label_scores, key=lambda x: x[1], reverse=True)[:top_k]
 
     return {

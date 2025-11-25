@@ -1,4 +1,7 @@
-# src/train.py
+import mlflow
+
+mlflow.set_tracking_uri("https://dagshub.com/NatLey30/ToxicityDetection.mlflow")
+mlflow.set_experiment("toxicity-classifier")
 
 import os
 import argparse
@@ -117,38 +120,52 @@ def main():
     # === Training Loop ===
     epoch_pbar = tqdm(range(1, args.num_epochs + 1), desc="Training epochs")
 
-    for epoch in epoch_pbar:
-        # Train one epoch → returns loss, acc, f1
-        train_metrics = train_one_epoch(
-            model=model,
-            dataloader=train_loader,
-            optimizer=optimizer,
-            device=device,
-            scheduler=scheduler,
-        )
+    with mlflow.start_run():
+        for epoch in epoch_pbar:
+            # Train one epoch → returns loss, acc, f1
+            train_metrics = train_one_epoch(
+                model=model,
+                dataloader=train_loader,
+                optimizer=optimizer,
+                device=device,
+                scheduler=scheduler,
+            )
 
-        # Validation
-        val_metrics = val_step(model, val_loader, device)
+            # Validation
+            val_metrics = val_step(model, val_loader, device)
 
-        # Update progress bar description with current metrics
-        epoch_pbar.set_description(
-            f"Epoch {epoch}/{args.num_epochs} | "
-            f"Train loss: {train_metrics['loss']:.4f}, "
-            f"Train F1-micro: {train_metrics['f1_micro']:.4f}, "
-            f"Train F1-macro: {train_metrics['f1_macro']:.4f} | "
-            f"Val loss: {val_metrics['loss']:.4f}, "
-            f"Val F1-micro: {val_metrics['f1_micro']:.4f}, "
-            f"Val F1-macro: {val_metrics['f1_macro']:.4f}"
-        )
+            # Update progress bar description with current metrics
+            epoch_pbar.set_description(
+                f"Epoch {epoch}/{args.num_epochs} | "
+                f"Train loss: {train_metrics['loss']:.4f}, "
+                f"Train F1-micro: {train_metrics['f1_micro']:.4f}, "
+                f"Train F1-macro: {train_metrics['f1_macro']:.4f} | "
+                f"Val loss: {val_metrics['loss']:.4f}, "
+                f"Val F1-micro: {val_metrics['f1_micro']:.4f}, "
+                f"Val F1-macro: {val_metrics['f1_macro']:.4f}"
+            )
 
-        # Track best based on F1_macro
-        if val_metrics["f1_macro"] > best_val_f1:
-            best_val_f1 = val_metrics["f1_macro"]
-            print(f"\nNew best model (F1-macro={best_val_f1:.4f}). Saving to best_model.")
-            save_model(model, tokenizer, "models/best_model")
+            # Track best based on F1_macro
+            if val_metrics["f1_macro"] > best_val_f1:
+                best_val_f1 = val_metrics["f1_macro"]
+                print(f"\nNew best model (F1-macro={best_val_f1:.4f}). Saving to best_model.")
+                save_model(model, tokenizer, "models/best_model")
 
-    print(f"\nNew model. Saving to {args.output_dir}".)
-    save_model(model, tokenizer, args.output_dir)
+            # Métricas de entrenamiento
+            mlflow.log_metric("train_loss", train_metrics["loss"], step=epoch)
+            mlflow.log_metric("train_accuracy", train_metrics["accuracy"], step=epoch)
+            mlflow.log_metric("train_f1_micro", train_metrics["f1_micro"], step=epoch)
+            mlflow.log_metric("train_f1_macro", train_metrics["f1_macro"], step=epoch)
+
+            # Métricas de validación
+            mlflow.log_metric("val_loss", val_metrics["loss"], step=epoch)
+            mlflow.log_metric("val_accuracy", val_metrics["accuracy"], step=epoch)
+            mlflow.log_metric("val_f1_micro", val_metrics["f1_micro"], step=epoch)
+            mlflow.log_metric("val_f1_macro", val_metrics["f1_macro"], step=epoch)
+
+        print(f"\nNew model. Saving to {args.output_dir}")
+        save_model(model, tokenizer, args.output_dir)
+        mlflow.pytorch.log_model(model, "model")
 
     # === Final Test Evaluation ===
     print("\n=== Evaluating test set using best saved model ===")
