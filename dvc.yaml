@@ -11,12 +11,12 @@ stages:
   evaluate:
     desc: "Evaluar modelo pre-entrenado DistilBERT"
     cmd: >
-      python src/load_model.py
+      python src/log_model.py
       --max_length ${eval.max_length}
       --batch_size ${eval.batch_size}
       --model_dir ${eval.output_dir}
     deps:
-      - src/load_model.py
+      - src/log_model.py
       - params.yaml
       - data/jigsaw/train.csv
       - data/jigsaw/test.csv
