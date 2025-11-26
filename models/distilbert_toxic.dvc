@@ -1,0 +1,6 @@
+outs:
+- md5: 62408e99659ee6bcc024b6cc43c136d4.dir
+  size: 268790075
+  nfiles: 6
+  hash: md5
+  path: distilbert_toxic
