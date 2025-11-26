@@ -7,6 +7,7 @@ import mlflow
 import yaml
 
 import sys
+import os
 sys.path.append(os.getcwd())
 
 from src.utils import load_model
