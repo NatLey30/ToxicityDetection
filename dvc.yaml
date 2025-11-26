@@ -14,7 +14,7 @@ stages:
       python src/log_model.py
       --max_length ${eval.max_length}
       --batch_size ${eval.batch_size}
-      --output_dir_dir ${eval.output_dir}
+      --output_dir ${eval.output_dir}
     deps:
       - src/log_model.py
       - params.yaml
