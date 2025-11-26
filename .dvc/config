@@ -1,0 +1,5 @@
+[core]
+    remote = origin
+['remote "origin"']
+    url = s3://NatLey30/ToxicityDetection.dvc
+    endpointurl = https://dagshub.com

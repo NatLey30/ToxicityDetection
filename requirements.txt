@@ -7,7 +7,7 @@ transformers
 datasets
 scikit-learn
 tqdm
-numpy==1.26.4
+numpy
 pyarrow==14.0.1
 
 evaluate
