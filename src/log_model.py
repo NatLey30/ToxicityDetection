@@ -41,12 +41,9 @@ def parse_args():
 
 
 if __name__ == "__main__":
-
-    import dagshub
-    dagshub.init(repo_owner='NatLey30', repo_name='ToxicityDetection', mlflow=True)
-    # tracking_uri = os.environ.get("MLFLOW_TRACKING_URI")
-    # mlflow.set_tracking_uri(tracking_uri)
-    mlflow.set_tracking_uri("https://dagshub.com/NatLey30/ToxicityDetection.mlflow")
+    tracking_uri = os.environ.get("MLFLOW_TRACKING_URI")
+    mlflow.set_tracking_uri(tracking_uri)
+    # mlflow.set_tracking_uri("https://dagshub.com/NatLey30/ToxicityDetection.mlflow")
     mlflow.set_experiment("toxicity-classifier")
 
     args = parse_args()
