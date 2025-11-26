@@ -1,12 +1,13 @@
-import os
 import argparse
-import json
 
 import torch
 from torch.utils.data import DataLoader
 
 import mlflow
 import yaml
+
+import sys
+sys.path.append(os.getcwd())
 
 from src.utils import load_model
 from src.data import load_and_prepare_datasets, set_global_seed
