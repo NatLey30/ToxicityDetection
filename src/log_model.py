@@ -5,6 +5,7 @@ from torch.utils.data import DataLoader
 
 import mlflow
 import yaml
+import json
 
 import sys
 import os
@@ -105,8 +106,8 @@ if __name__ == "__main__":
 
         _, _, test_metrics = test_step(model, test_loader, device)
 
-        # with open("mlflow_metrics.json", "w") as f:
-        #     json.dump(test_metrics, f)
+        with open("mlflow_metrics.json", "w") as f:
+            json.dump(test_metrics, f)
 
         for k, v in test_metrics.items():
             mlflow.log_metric(k, v)
